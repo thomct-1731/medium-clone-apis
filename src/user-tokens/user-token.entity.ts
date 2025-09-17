@@ -1,19 +1,10 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  CreateDateColumn,
-  UpdateDateColumn,
-  ManyToOne,
-  JoinColumn,
-} from 'typeorm';
+import { Entity, Column, ManyToOne, JoinColumn } from 'typeorm';
+
+import { BaseEntity } from '../common/base.entity';
 import { User } from '../users/user.entity';
 
 @Entity('user_tokens')
-export class UserToken {
-  @PrimaryGeneratedColumn()
-  id: number;
-
+export class UserToken extends BaseEntity {
   @Column()
   token: string;
 
@@ -22,12 +13,6 @@ export class UserToken {
 
   @Column()
   expires_at: Date;
-
-  @CreateDateColumn({ name: 'created_at' })
-  createdAt: Date;
-
-  @UpdateDateColumn({ name: 'updated_at' })
-  updatedAt: Date;
 
   @ManyToOne(() => User, (user) => user.tokens, { eager: false })
   @JoinColumn({ name: 'user_id' })

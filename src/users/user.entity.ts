@@ -1,18 +1,10 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  CreateDateColumn,
-  UpdateDateColumn,
-  OneToMany,
-} from 'typeorm';
+import { Entity, Column, OneToMany } from 'typeorm';
+
+import { BaseEntity } from '../common/base.entity';
 import { UserToken } from '../user-tokens/user-token.entity';
 
 @Entity('users')
-export class User {
-  @PrimaryGeneratedColumn()
-  id: number;
-
+export class User extends BaseEntity {
   @Column({ unique: true })
   email: string;
 
@@ -22,17 +14,11 @@ export class User {
   @Column({ unique: true })
   username: string;
 
-  @Column()
+  @Column({ type: 'text', nullable: true })
   bio: string;
 
-  @Column()
+  @Column({ type: 'text', nullable: true })
   image: string;
-
-  @CreateDateColumn({ name: 'created_at' })
-  createdAt: Date;
-
-  @UpdateDateColumn({ name: 'updated_at' })
-  updatedAt: Date;
 
   @OneToMany(() => UserToken, (userToken) => userToken.user)
   tokens: UserToken[];
