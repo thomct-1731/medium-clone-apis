@@ -6,17 +6,39 @@ import {
   Patch,
   Param,
   Delete,
+  UsePipes,
+  ValidationPipe,
 } from '@nestjs/common';
+import { ApiOperation, ApiResponse } from '@nestjs/swagger';
+
 import { UsersService } from './users.service';
-import { CreateUserDto } from './dto/create-user.dto';
+import {
+  CreateUserDto,
+  RegisterRequest,
+  UserResponseDto,
+} from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
+  @Post('login')
+  logIn(@Body() createUserDto: CreateUserDto) {
+    return this.usersService.create(createUserDto);
+  }
+
   @Post()
-  create(@Body() createUserDto: CreateUserDto) {
+  @ApiOperation({ summary: 'Registration' })
+  @ApiResponse({
+    status: 201,
+    description: 'The user has been created.',
+    type: UserResponseDto,
+  })
+  @ApiResponse({ status: 400, description: 'Bad Request.' })
+  @UsePipes(new ValidationPipe({ transform: true }))
+  create(@Body() request: RegisterRequest) {
+    const { user: createUserDto } = request;
     return this.usersService.create(createUserDto);
   }
 
