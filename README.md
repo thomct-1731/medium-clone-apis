@@ -44,6 +44,25 @@ $ npm run start:dev
 $ npm run start:prod
 ```
 
+## Database
+
+```bash
+# init db
+$ psql -U postgres -h localhost -c "CREATE DATABASE medium_clone_db;"
+
+# create new migration file
+$ npm run migration:generate src/migrations/<MigrationFileName>
+
+# run migrations
+$ npm run migration:run
+
+# revert migrations
+$ npm run migration:revert
+
+# show migrations
+$ npm run migration:show
+```
+
 ## Run tests
 
 ```bash
