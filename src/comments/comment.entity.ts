@@ -9,7 +9,10 @@ export class Comment extends BaseEntity {
   @Column({ type: 'text' })
   body: string;
 
-  @ManyToOne(() => User, (user) => user.comments, { onDelete: 'CASCADE' })
+  @ManyToOne(() => User, (user) => user.comments, {
+    onDelete: 'SET NULL',
+    nullable: true,
+  })
   @JoinColumn({ name: 'author_id' })
   author: User;
 

@@ -41,6 +41,12 @@ export class CreateArticleAndTagTable1758010633333
             isNullable: false,
           },
           {
+            name: 'status',
+            type: 'enum',
+            enum: ['DRAFT', 'PUBLISHED', 'ARCHIVED'],
+            default: `'DRAFT'`,
+          },
+          {
             name: 'created_at',
             type: 'timestamptz',
             length: '6',
@@ -65,8 +71,7 @@ export class CreateArticleAndTagTable1758010633333
             columnNames: ['author_id'],
             referencedColumnNames: ['id'],
             referencedTableName: 'users',
-            onUpdate: 'CASCADE',
-            onDelete: 'CASCADE',
+            onDelete: 'SET NULL',
           },
         ],
         indices: [

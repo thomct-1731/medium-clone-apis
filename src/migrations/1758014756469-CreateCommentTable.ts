@@ -50,8 +50,7 @@ export class CreateCommentTable1758014756469 implements MigrationInterface {
             columnNames: ['author_id'],
             referencedColumnNames: ['id'],
             referencedTableName: 'users',
-            onUpdate: 'CASCADE',
-            onDelete: 'CASCADE',
+            onDelete: 'SET NULL',
           },
           {
             name: 'fk_comment_article_id',
