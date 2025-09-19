@@ -9,4 +9,11 @@ export class UserTokensRepository extends BaseRepository<UserToken> {
   constructor(dataSource: DataSource) {
     super(UserToken, dataSource.createEntityManager());
   }
+
+  async findLatestToken(userId: number): Promise<UserToken | null> {
+    return this.findOne({
+      where: { user: { id: userId } },
+      order: { createdAt: 'DESC' },
+    });
+  }
 }
