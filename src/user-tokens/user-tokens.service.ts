@@ -12,4 +12,12 @@ export class UserTokensService {
       user: { id: createUserTokenDto.user_id },
     });
   }
+
+  async getLatestToken(userId: number) {
+    return await this.userTokensRepository.findLatestToken(userId);
+  }
+
+  async update(id: number, data: Partial<CreateUserTokenDto>) {
+    return await this.userTokensRepository.updateEntity(id, data);
+  }
 }
