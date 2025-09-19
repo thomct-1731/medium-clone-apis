@@ -1,53 +1,23 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
-import {
-  IsEmail,
-  IsNotEmpty,
-  MinLength,
-  ValidateNested,
-} from 'class-validator';
+import { IsEmail, IsNotEmpty, MinLength, MaxLength } from 'class-validator';
+import { Exclude } from 'class-transformer';
+
+import { USER_CONSTANTS } from '../user.contant';
 
 export class CreateUserDto {
   @ApiProperty()
   @IsNotEmpty()
+  @MinLength(USER_CONSTANTS.USERNAME.MIN_LENGTH)
+  @MaxLength(USER_CONSTANTS.USERNAME.MAX_LENGTH)
   username: string;
 
-  @ApiProperty()
+  @ApiProperty({ example: 'abc@xyz.com' })
   @IsEmail()
   email: string;
 
   @ApiProperty()
   @IsNotEmpty()
-  @MinLength(6)
+  @MinLength(USER_CONSTANTS.PASSWORD.MIN_LENGTH)
+  @Exclude({ toPlainOnly: true })
   password: string;
-}
-
-export class RegisterRequest {
-  @ApiProperty({ type: CreateUserDto })
-  @IsNotEmpty()
-  @ValidateNested()
-  @Type(() => CreateUserDto)
-  user: CreateUserDto;
-}
-
-export class UserDataDto {
-  @ApiProperty()
-  email: string;
-
-  @ApiProperty()
-  token: string;
-
-  @ApiProperty()
-  username: string;
-
-  @ApiProperty({ required: false })
-  bio?: string;
-
-  @ApiProperty({ required: false })
-  image?: string;
-}
-
-export class UserResponseDto {
-  @ApiProperty({ type: UserDataDto })
-  user: UserDataDto;
 }

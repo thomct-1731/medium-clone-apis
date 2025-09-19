@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { CreateUserTokenDto } from './dto/create-user-token.dto';
-import { UpdateUserTokenDto } from './dto/update-user-token.dto';
 import { UserTokensRepository } from './user-tokens.repository';
 
 @Injectable()
@@ -12,9 +11,5 @@ export class UserTokensService {
       ...createUserTokenDto,
       user: { id: createUserTokenDto.user_id },
     });
-  }
-
-  update(id: number, updateUserTokenDto: UpdateUserTokenDto) {
-    return this.userTokensRepository.updateEntity(id, updateUserTokenDto);
   }
 }

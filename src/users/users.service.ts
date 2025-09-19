@@ -1,13 +1,13 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { hash } from 'bcryptjs';
 
 import { CreateUserTokenDto } from '../user-tokens/dto/create-user-token.dto';
 import { UserTokensService } from '../user-tokens/user-tokens.service';
-import { CreateUserDto, UserResponseDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
+import { CreateUserDto } from './dto/create-user.dto';
+import { UserResponseDto } from './dto/user-reponse.dto';
 import { User } from './user.entity';
+import { UserToken } from '../user-tokens/user-token.entity';
 import { UsersRepository } from './users.repository';
 
 @Injectable()
@@ -48,27 +48,29 @@ export class UsersService {
     };
   }
 
-  async create(user: CreateUserDto): Promise<UserResponseDto> {
-    const existingUser = await this.usersRepository.findByEmail(user.email);
+  private async createUserToken(user: User): Promise<UserToken> {
+    const userToken = await this.tokensService.create(
+      this.generateTokens(user),
+    );
+
+    return userToken;
+  }
+
+  async create(userData: CreateUserDto): Promise<UserResponseDto> {
+    const existingUser = await this.usersRepository.findByEmail(userData.email);
     if (existingUser) {
       throw new BadRequestException('Email already exists!');
     }
 
     const existingUserByUsername = await this.usersRepository.findByUsername(
-      user.username,
+      userData.username,
     );
     if (existingUserByUsername) {
       throw new BadRequestException('Username already exists!');
     }
 
-    const userData = {
-      ...user,
-      password: await hash(user.password, 10),
-    };
     const newUser = await this.usersRepository.createEntity(userData);
-    const userToken = await this.tokensService.create(
-      this.generateTokens(newUser),
-    );
+    const userToken = await this.createUserToken(newUser);
 
     return {
       user: {
@@ -79,21 +81,5 @@ export class UsersService {
         image: newUser.image,
       },
     };
-  }
-
-  findAll() {
-    return `This action returns all users`;
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
-  }
-
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} user`;
   }
 }
