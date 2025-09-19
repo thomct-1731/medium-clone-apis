@@ -10,11 +10,11 @@ import {
   ApiOperation,
   ApiCreatedResponse,
   ApiBadRequestResponse,
+  ApiOkResponse,
 } from '@nestjs/swagger';
 
 import { UsersService } from './users.service';
-import { CreateUserDto } from './dto/create-user.dto';
-import { RegisterRequest } from './dto/user-request.dto';
+import { RegisterRequest, LoginRequest } from './dto/user-request.dto';
 import { UserResponseDto } from './dto/user-reponse.dto';
 
 @ApiTags('users')
@@ -22,10 +22,15 @@ import { UserResponseDto } from './dto/user-reponse.dto';
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  // TODO; update later
   @Post('login')
-  logIn(@Body() createUserDto: CreateUserDto) {
-    return this.usersService.create(createUserDto);
+  @ApiOperation({ summary: 'Login' })
+  @ApiOkResponse({
+    description: 'User logged in successfully',
+    type: UserResponseDto,
+  })
+  login(@Body() request: LoginRequest) {
+    const { user: loginUserDto } = request;
+    return this.usersService.login(loginUserDto);
   }
 
   @Post()

@@ -1,7 +1,7 @@
 import { Entity, Column, OneToMany, BeforeInsert } from 'typeorm';
 import { MinLength, MaxLength } from 'class-validator';
 import { Exclude } from 'class-transformer';
-import * as bcrypt from 'bcrypt';
+import bcrypt from 'bcrypt';
 
 import { BaseEntity } from '../common/base.entity';
 import { UserToken } from '../user-tokens/user-token.entity';
@@ -45,5 +45,9 @@ export class User extends BaseEntity {
       this.password,
       USER_CONSTANTS.PASSWORD.SALT_ROUNDS,
     );
+  }
+
+  async comparePassword(password: string): Promise<boolean> {
+    return await bcrypt.compare(password, this.password);
   }
 }
