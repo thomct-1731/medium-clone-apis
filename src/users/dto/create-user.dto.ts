@@ -1,8 +1,14 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsNotEmpty, MinLength, MaxLength } from 'class-validator';
+import {
+  IsEmail,
+  IsNotEmpty,
+  MinLength,
+  MaxLength,
+} from 'class-validator';
 import { Exclude } from 'class-transformer';
 
 import { USER_CONSTANTS } from '../user.contant';
+import { Match } from '../../common/validators/match.decorator';
 
 export class CreateUserDto {
   @ApiProperty()
@@ -20,4 +26,10 @@ export class CreateUserDto {
   @MinLength(USER_CONSTANTS.PASSWORD.MIN_LENGTH)
   @Exclude({ toPlainOnly: true })
   password: string;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  @MinLength(USER_CONSTANTS.PASSWORD.MIN_LENGTH)
+  @Match('password')
+  password_confirmation: string;
 }

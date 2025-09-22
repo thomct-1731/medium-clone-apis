@@ -49,11 +49,7 @@ export class UsersService {
   }
 
   private async createUserToken(user: User): Promise<UserToken> {
-    const userToken = await this.tokensService.create(
-      this.generateTokens(user),
-    );
-
-    return userToken;
+    return await this.tokensService.create(this.generateTokens(user));
   }
 
   async create(userData: CreateUserDto): Promise<UserResponseDto> {
