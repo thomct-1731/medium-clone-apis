@@ -1,6 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
+import { I18nService, I18nContext } from 'nestjs-i18n';
 
 import { CreateUserTokenDto } from '../user-tokens/dto/create-user-token.dto';
 import { UserTokensService } from '../user-tokens/user-tokens.service';
@@ -17,6 +18,7 @@ export class UsersService {
     private readonly jwtService: JwtService,
     private readonly tokensService: UserTokensService,
     private readonly configService: ConfigService,
+    private readonly i18n: I18nService,
   ) {}
 
   private generateTokens(user: User): CreateUserTokenDto {
@@ -52,17 +54,26 @@ export class UsersService {
     return await this.tokensService.create(this.generateTokens(user));
   }
 
-  async create(userData: CreateUserDto): Promise<UserResponseDto> {
+  async create(
+    userData: CreateUserDto,
+    i18n?: I18nContext,
+  ): Promise<UserResponseDto> {
+    const lang = i18n?.lang || this.configService.get<string>('DEFAULT_LANG');
+
     const existingUser = await this.usersRepository.findByEmail(userData.email);
     if (existingUser) {
-      throw new BadRequestException('Email already exists!');
+      throw new BadRequestException(
+        this.i18n.t('user.ERRORS.EMAIL_EXIST', { lang }),
+      );
     }
 
     const existingUserByUsername = await this.usersRepository.findByUsername(
       userData.username,
     );
     if (existingUserByUsername) {
-      throw new BadRequestException('Username already exists!');
+      throw new BadRequestException(
+        this.i18n.t('user.ERRORS.USERNAME_EXIST', { lang }),
+      );
     }
 
     const newUser = await this.usersRepository.createEntity(userData);
