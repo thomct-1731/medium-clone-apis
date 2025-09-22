@@ -11,6 +11,7 @@ import {
   ApiCreatedResponse,
   ApiBadRequestResponse,
 } from '@nestjs/swagger';
+import { I18n, I18nContext } from 'nestjs-i18n';
 
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -36,8 +37,8 @@ export class UsersController {
   })
   @ApiBadRequestResponse({ description: 'Bad Request' })
   @UsePipes(new ValidationPipe({ transform: true }))
-  create(@Body() request: RegisterRequest) {
+  create(@Body() request: RegisterRequest, @I18n() i18n: I18nContext) {
     const { user: createUserDto } = request;
-    return this.usersService.create(createUserDto);
+    return this.usersService.create(createUserDto, i18n);
   }
 }
