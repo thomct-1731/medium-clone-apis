@@ -1,6 +1,6 @@
 import { Entity, Column, OneToMany, BeforeInsert } from 'typeorm';
 import { MinLength, MaxLength } from 'class-validator';
-import { Exclude } from 'class-transformer';
+import { Exclude, Expose } from 'class-transformer';
 import bcrypt from 'bcrypt';
 
 import { BaseEntity } from '../common/base.entity';
@@ -49,5 +49,10 @@ export class User extends BaseEntity {
 
   async comparePassword(password: string): Promise<boolean> {
     return await bcrypt.compare(password, this.password);
+  }
+
+  @Expose()
+  get following(): boolean {
+    return false;
   }
 }

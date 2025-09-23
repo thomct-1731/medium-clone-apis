@@ -21,3 +21,22 @@ export class UserResponseDto {
   @ApiProperty({ type: UserDataDto })
   user: UserDataDto;
 }
+
+export class ProfileDataDto {
+  @ApiProperty()
+  username: string;
+
+  @ApiProperty({ required: false })
+  bio?: string;
+
+  @ApiProperty({ required: false })
+  image?: string;
+
+  @ApiProperty()
+  following: boolean;
+}
+
+export class ProfileResponseDto {
+  @ApiProperty({ type: ProfileDataDto })
+  profile: ProfileDataDto;
+}
