@@ -3,6 +3,7 @@
     "EMAIL_EXIST": "Email already exists!",
     "USERNAME_EXIST": "Username already exists!",
     "LOGIN_FAILED": "Invalid email or password!",
-    "NOT_FOUND": "User not found!"
+    "NOT_FOUND": "User not found!",
+    "UPDATE_FAILED": "Update user failed!"
   }
 }

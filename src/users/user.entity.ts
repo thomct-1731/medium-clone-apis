@@ -8,6 +8,7 @@ import { UserToken } from '../user-tokens/user-token.entity';
 import { Article } from '../articles/article.entity';
 import { Comment } from '../comments/comment.entity';
 import { USER_CONSTANTS } from './user.contant';
+import { hashPassword } from '../common/utils/password.util';
 
 @Entity('users')
 export class User extends BaseEntity {
@@ -41,10 +42,7 @@ export class User extends BaseEntity {
 
   @BeforeInsert()
   async hashPassword() {
-    this.password = await bcrypt.hash(
-      this.password,
-      USER_CONSTANTS.PASSWORD.SALT_ROUNDS,
-    );
+    this.password = await hashPassword(this.password);
   }
 
   async comparePassword(password: string): Promise<boolean> {

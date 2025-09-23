@@ -6,6 +6,7 @@ import {
   ValidationPipe,
   Get,
   UseGuards,
+  Put,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -19,7 +20,11 @@ import {
 import { I18n, I18nContext } from 'nestjs-i18n';
 
 import { UsersService } from './users.service';
-import { RegisterRequest, LoginRequest } from './dto/user-request.dto';
+import {
+  RegisterRequest,
+  LoginRequest,
+  UpdateUserRequest,
+} from './dto/user-request.dto';
 import { UserResponseDto } from './dto/user-reponse.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { CurrentUser } from 'src/common/decorators/current-user.decorator';
@@ -64,5 +69,23 @@ export class UsersController {
   @UseGuards(JwtAuthGuard)
   getCurrentUser(@CurrentUser() userId: number, @I18n() i18n: I18nContext) {
     return this.usersService.getCurrentUser(userId, i18n);
+  }
+
+  @Put('user')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Update user' })
+  @ApiOkResponse({
+    description: 'Update user success.',
+    type: UserResponseDto,
+  })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @UseGuards(JwtAuthGuard)
+  updateUser(
+    @CurrentUser() userId: number,
+    @Body() request: UpdateUserRequest,
+    @I18n() i18n: I18nContext,
+  ) {
+    const { user: updateUserDto } = request;
+    return this.usersService.updateUser(userId, updateUserDto, i18n);
   }
 }
