@@ -19,8 +19,7 @@ import {
 import { I18n, I18nContext } from 'nestjs-i18n';
 
 import { UsersService } from './users.service';
-import { CreateUserDto } from './dto/create-user.dto';
-import { RegisterRequest } from './dto/user-request.dto';
+import { RegisterRequest, LoginRequest } from './dto/user-request.dto';
 import { UserResponseDto } from './dto/user-reponse.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { CurrentUser } from 'src/common/decorators/current-user.decorator';
@@ -30,10 +29,15 @@ import { CurrentUser } from 'src/common/decorators/current-user.decorator';
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  // TODO; update later
   @Post('users/login')
-  logIn(@Body() createUserDto: CreateUserDto) {
-    return this.usersService.create(createUserDto);
+  @ApiOperation({ summary: 'Login' })
+  @ApiOkResponse({
+    description: 'User logged in successfully',
+    type: UserResponseDto,
+  })
+  login(@Body() request: LoginRequest, @I18n() i18n: I18nContext) {
+    const { user: loginUserDto } = request;
+    return this.usersService.login(loginUserDto, i18n);
   }
 
   @Post('users')

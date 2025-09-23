@@ -16,4 +16,8 @@ export class UserTokensService {
   async getLatestToken(userId: number) {
     return await this.userTokensRepository.findLatestToken(userId);
   }
+
+  async update(id: number, data: Partial<CreateUserTokenDto>) {
+    return await this.userTokensRepository.updateEntity(id, data);
+  }
 }
