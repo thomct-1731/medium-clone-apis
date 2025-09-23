@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { I18nService, I18nContext } from 'nestjs-i18n';
@@ -10,6 +14,7 @@ import { UserResponseDto } from './dto/user-reponse.dto';
 import { User } from './user.entity';
 import { UserToken } from '../user-tokens/user-token.entity';
 import { UsersRepository } from './users.repository';
+import { JwtPayload } from './interfaces/jwt-payload.interface';
 
 @Injectable()
 export class UsersService {
@@ -22,7 +27,7 @@ export class UsersService {
   ) {}
 
   private generateTokens(user: User): CreateUserTokenDto {
-    const payload = {
+    const payload: JwtPayload = {
       sub: user.id,
       email: user.email,
       username: user.username,
@@ -86,6 +91,32 @@ export class UsersService {
         username: newUser.username,
         bio: newUser.bio,
         image: newUser.image,
+      },
+    };
+  }
+
+  async getCurrentUser(
+    userId: number,
+    i18n?: I18nContext,
+  ): Promise<UserResponseDto> {
+    const lang = i18n?.lang || this.configService.get<string>('DEFAULT_LANG');
+
+    const user = await this.usersRepository.findById(userId);
+    if (!user) {
+      throw new NotFoundException(
+        this.i18n.t('user.ERRORS.NOT_FOUND', { lang }),
+      );
+    }
+
+    const userToken = await this.tokensService.getLatestToken(user.id);
+
+    return {
+      user: {
+        email: user.email,
+        token: userToken?.token || '',
+        username: user.username,
+        bio: user.bio,
+        image: user.image,
       },
     };
   }

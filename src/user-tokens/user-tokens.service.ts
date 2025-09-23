@@ -12,4 +12,8 @@ export class UserTokensService {
       user: { id: createUserTokenDto.user_id },
     });
   }
+
+  async getLatestToken(userId: number) {
+    return await this.userTokensRepository.findLatestToken(userId);
+  }
 }

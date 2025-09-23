@@ -1,6 +1,7 @@
 {
   "ERRORS": {
     "EMAIL_EXIST": "Email already exists!",
-    "USERNAM_EXIST": "Username already exists!"
+    "USERNAME_EXIST": "Username already exists!",
+    "NOT_FOUND": "User not found!"
   }
 }
