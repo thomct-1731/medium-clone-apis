@@ -1,4 +1,9 @@
-import { BadRequestException, Injectable, Logger } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+  Logger,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { I18nService, I18nContext } from 'nestjs-i18n';
@@ -6,11 +11,15 @@ import { I18nService, I18nContext } from 'nestjs-i18n';
 import { CreateUserTokenDto } from '../user-tokens/dto/create-user-token.dto';
 import { UserTokensService } from '../user-tokens/user-tokens.service';
 import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 import { LoginUserDto } from './dto/user-request.dto';
 import { UserResponseDto } from './dto/user-reponse.dto';
 import { User } from './user.entity';
 import { UserToken } from '../user-tokens/user-token.entity';
 import { UsersRepository } from './users.repository';
+import { JwtPayload } from './interfaces/jwt-payload.interface';
+import { getLang } from 'src/common/utils/lang.util';
+import { hashPassword } from 'src/common/utils/password.util';
 
 @Injectable()
 export class UsersService {
@@ -25,7 +34,7 @@ export class UsersService {
   ) {}
 
   private generateTokens(user: User): CreateUserTokenDto {
-    const payload = {
+    const payload: JwtPayload = {
       sub: user.id,
       email: user.email,
       username: user.username,
@@ -90,47 +99,69 @@ export class UsersService {
     return await this.tokensService.create(this.generateTokens(user));
   }
 
-  async create(
-    userData: CreateUserDto,
-    i18n?: I18nContext,
-  ): Promise<UserResponseDto> {
-    const lang = i18n?.lang || this.configService.get<string>('DEFAULT_LANG');
+  private async validateUser(userId: number, lang?: string): Promise<User> {
+    const user = await this.usersRepository.findById(userId);
+    if (!user) {
+      throw new NotFoundException(
+        this.i18n.t('user.ERRORS.NOT_FOUND', { lang }),
+      );
+    }
+    return user;
+  }
 
-    const existingUser = await this.usersRepository.findByEmail(userData.email);
+  private async validateEmail(email: string, lang?: string): Promise<void> {
+    const existingUser = await this.usersRepository.findByEmail(email);
     if (existingUser) {
       throw new BadRequestException(
         this.i18n.t('user.ERRORS.EMAIL_EXIST', { lang }),
       );
     }
+  }
 
-    const existingUserByUsername = await this.usersRepository.findByUsername(
-      userData.username,
-    );
-    if (existingUserByUsername) {
+  private async validateUsername(
+    username: string,
+    lang?: string,
+  ): Promise<void> {
+    const existingUser = await this.usersRepository.findByUsername(username);
+    if (existingUser) {
       throw new BadRequestException(
         this.i18n.t('user.ERRORS.USERNAME_EXIST', { lang }),
       );
     }
+  }
+
+  private getUserData(user: User, token: string): UserResponseDto {
+    return {
+      user: {
+        email: user.email,
+        token: token,
+        username: user.username,
+        bio: user.bio,
+        image: user.image,
+      },
+    };
+  }
+
+  async create(
+    userData: CreateUserDto,
+    i18n?: I18nContext,
+  ): Promise<UserResponseDto> {
+    const lang = getLang(this.configService, i18n);
+
+    await this.validateEmail(userData.email, lang);
+    await this.validateUsername(userData.username, lang);
 
     const newUser = await this.usersRepository.createEntity(userData);
     const userToken = await this.createUserToken(newUser);
 
-    return {
-      user: {
-        email: newUser.email,
-        token: userToken.token,
-        username: newUser.username,
-        bio: newUser.bio,
-        image: newUser.image,
-      },
-    };
+    return this.getUserData(newUser, userToken?.token || '');
   }
 
   async login(
     userData: LoginUserDto,
     i18n?: I18nContext,
   ): Promise<UserResponseDto> {
-    const lang = i18n?.lang || this.configService.get<string>('DEFAULT_LANG');
+    const lang = getLang(this.configService, i18n);
 
     const user = await this.usersRepository.findByEmail(userData.email);
 
@@ -142,14 +173,48 @@ export class UsersService {
 
     const userToken = await this.getOrCreateUserToken(user);
 
-    return {
-      user: {
-        email: user.email,
-        token: userToken.token,
-        username: user.username,
-        bio: user.bio,
-        image: user.image,
-      },
-    };
+    return this.getUserData(user, userToken?.token || '');
+  }
+
+  async getCurrentUser(
+    userId: number,
+    i18n?: I18nContext,
+  ): Promise<UserResponseDto> {
+    const lang = getLang(this.configService, i18n);
+    const user = await this.validateUser(userId, lang);
+    const userToken = await this.tokensService.getLatestToken(user.id);
+
+    return this.getUserData(user, userToken?.token || '');
+  }
+
+  async updateUser(
+    userId: number,
+    userData: UpdateUserDto,
+    i18n?: I18nContext,
+  ): Promise<UserResponseDto> {
+    const lang = getLang(this.configService, i18n);
+    const user = await this.validateUser(userId, lang);
+
+    if (userData.email && userData.email !== user.email) {
+      await this.validateEmail(userData.email, lang);
+    }
+
+    if (userData.username && userData.username !== user.username) {
+      await this.validateUsername(userData.username, lang);
+    }
+
+    const updatedUser = await this.usersRepository.updateEntity(
+      userId,
+      userData,
+    );
+    if (!updatedUser) {
+      throw new NotFoundException(
+        this.i18n.t('user.ERRORS.UPDATE_FAILED', { lang }),
+      );
+    }
+
+    const userToken = await this.tokensService.getLatestToken(updatedUser.id);
+
+    return this.getUserData(updatedUser, userToken?.token || '');
   }
 }
