@@ -25,12 +25,6 @@ export class UpdateUserDto {
   @ApiProperty()
   @IsOptional()
   @IsString()
-  @MinLength(USER_CONSTANTS.PASSWORD.MIN_LENGTH)
-  password?: string;
-
-  @ApiProperty()
-  @IsOptional()
-  @IsString()
   image?: string;
 
   @ApiProperty()

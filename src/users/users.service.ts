@@ -203,10 +203,6 @@ export class UsersService {
       await this.validateUsername(userData.username, lang);
     }
 
-    if (userData.password) {
-      userData.password = await hashPassword(userData.password);
-    }
-
     const updatedUser = await this.usersRepository.updateEntity(
       userId,
       userData,
