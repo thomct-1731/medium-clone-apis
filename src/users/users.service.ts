@@ -221,7 +221,7 @@ export class UsersService {
     username: string,
     i18n?: I18nContext,
   ): Promise<ProfileResponseDto> {
-    const lang = i18n?.lang || this.configService.get<string>('DEFAULT_LANG');
+    const lang = getLang(this.configService, i18n);
 
     const user = await this.usersRepository.findByUsername(username);
     if (!user) {
