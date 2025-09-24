@@ -8,6 +8,7 @@ import {
 } from 'class-validator';
 
 import { CreateUserDto } from './create-user.dto';
+import { UpdateUserDto } from './update-user.dto';
 import { USER_CONSTANTS } from '../user.contant';
 
 export class RegisterRequest {
@@ -35,4 +36,12 @@ export class LoginRequest {
   @ValidateNested()
   @Type(() => LoginUserDto)
   user: LoginUserDto;
+}
+
+export class UpdateUserRequest {
+  @ApiProperty({ type: UpdateUserDto })
+  @IsNotEmpty()
+  @ValidateNested()
+  @Type(() => UpdateUserDto)
+  user: UpdateUserDto;
 }

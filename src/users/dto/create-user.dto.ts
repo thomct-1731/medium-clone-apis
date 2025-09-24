@@ -1,10 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import {
-  IsEmail,
-  IsNotEmpty,
-  MinLength,
-  MaxLength,
-} from 'class-validator';
+import { IsEmail, IsNotEmpty, MinLength, MaxLength } from 'class-validator';
 import { Exclude } from 'class-transformer';
 
 import { USER_CONSTANTS } from '../user.contant';

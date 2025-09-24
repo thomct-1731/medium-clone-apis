@@ -3,6 +3,8 @@
     "EMAIL_EXIST": "Email đã tồn tại!",
     "USERNAME_EXIST": "Tên người dùng đã tồn tại!",
     "LOGIN_FAILED": "Email hoặc mật khẩu không đúng!",
+    "NOT_FOUND": "Không tìm thấy người dùng!",
+    "UPDATE_FAILED": "Cập nhật người dùng thất bại!",
     "NOT_FOUND_USERNAME": "Không tìm thấy người dùng với tên {username}!"
   }
 }
