@@ -6,8 +6,11 @@ import {
   ManyToOne,
   JoinColumn,
   OneToMany,
+  BeforeInsert,
+  BeforeUpdate,
 } from 'typeorm';
 import { MinLength, MaxLength } from 'class-validator';
+import { Expose } from 'class-transformer';
 
 import { BaseEntity } from '../common/base.entity';
 import { Tag } from '../tags/tag.entity';
@@ -15,6 +18,7 @@ import { User } from '../users/user.entity';
 import { Comment } from '../comments/comment.entity';
 import { ARTICLE_CONSTANTS } from './article.constant';
 import { ArticleStatus } from './article.enum';
+import { flattenText } from '../common/utils/string.util';
 
 @Entity('articles')
 export class Article extends BaseEntity {
@@ -60,4 +64,24 @@ export class Article extends BaseEntity {
 
   @OneToMany(() => Comment, (comment) => comment.article)
   comments: Comment[];
+
+  @BeforeInsert()
+  @BeforeUpdate()
+  generateSlug() {
+    if (this.title) {
+      this.slug = flattenText(this.title, ARTICLE_CONSTANTS.SLUG.MAX_LENGTH);
+    }
+  }
+
+  // TODO: update later
+  @Expose()
+  get favorited(): boolean {
+    return false;
+  }
+
+  @Expose()
+  get favoritesCount(): number {
+    return 0;
+  }
+  // TODO
 }
