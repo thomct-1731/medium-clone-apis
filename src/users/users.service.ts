@@ -7,6 +7,7 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { I18nService, I18nContext } from 'nestjs-i18n';
+import { plainToInstance } from 'class-transformer';
 
 import { CreateUserTokenDto } from '../user-tokens/dto/create-user-token.dto';
 import { UserTokensService } from '../user-tokens/user-tokens.service';
@@ -233,13 +234,12 @@ export class UsersService {
       );
     }
 
-    return {
-      profile: {
-        username: user.username,
-        bio: user.bio,
-        image: user.image,
-        following: user.following,
+    return plainToInstance(
+      ProfileResponseDto,
+      { profile: user },
+      {
+        excludeExtraneousValues: true,
       },
-    };
+    );
   }
 }

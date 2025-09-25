@@ -49,8 +49,20 @@ export class User extends BaseEntity {
     return await bcrypt.compare(password, this.password);
   }
 
+  // TODO: update later
   @Expose()
   get following(): boolean {
     return false;
   }
+
+  @Expose()
+  get following_count(): number {
+    return 0;
+  }
+
+  @Expose()
+  get followers_count(): number {
+    return 0;
+  }
+  // TODO
 }
