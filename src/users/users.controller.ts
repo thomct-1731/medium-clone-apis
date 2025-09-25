@@ -5,6 +5,7 @@ import {
   UsePipes,
   ValidationPipe,
   Get,
+  Param,
   UseGuards,
   Put,
 } from '@nestjs/common';
@@ -14,6 +15,7 @@ import {
   ApiCreatedResponse,
   ApiBadRequestResponse,
   ApiOkResponse,
+  ApiNotFoundResponse,
   ApiUnauthorizedResponse,
   ApiBearerAuth,
 } from '@nestjs/swagger';
@@ -25,7 +27,7 @@ import {
   LoginRequest,
   UpdateUserRequest,
 } from './dto/user-request.dto';
-import { UserResponseDto } from './dto/user-reponse.dto';
+import { UserResponseDto, ProfileResponseDto } from './dto/user-reponse.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { CurrentUser } from 'src/common/decorators/current-user.decorator';
 
@@ -87,5 +89,16 @@ export class UsersController {
   ) {
     const { user: updateUserDto } = request;
     return this.usersService.updateUser(userId, updateUserDto, i18n);
+  }
+
+  @Get('profiles/:username')
+  @ApiOperation({ summary: 'Get user profile' })
+  @ApiOkResponse({ description: 'Profile found', type: ProfileResponseDto })
+  @ApiNotFoundResponse({ description: 'Not found' })
+  async getProfile(
+    @Param('username') username: string,
+    @I18n() i18n: I18nContext,
+  ) {
+    return this.usersService.getProfile(username, i18n);
   }
 }

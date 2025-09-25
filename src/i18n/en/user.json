@@ -4,6 +4,7 @@
     "USERNAME_EXIST": "Username already exists!",
     "LOGIN_FAILED": "Invalid email or password!",
     "NOT_FOUND": "User not found!",
-    "UPDATE_FAILED": "Update user failed!"
+    "UPDATE_FAILED": "Update user failed!",
+    "NOT_FOUND_USERNAME": "Not found user with {username}!"
   }
 }

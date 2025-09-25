@@ -7,19 +7,19 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { I18nService, I18nContext } from 'nestjs-i18n';
+import { plainToInstance } from 'class-transformer';
 
 import { CreateUserTokenDto } from '../user-tokens/dto/create-user-token.dto';
 import { UserTokensService } from '../user-tokens/user-tokens.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { LoginUserDto } from './dto/user-request.dto';
-import { UserResponseDto } from './dto/user-reponse.dto';
+import { UserResponseDto, ProfileResponseDto } from './dto/user-reponse.dto';
 import { User } from './user.entity';
 import { UserToken } from '../user-tokens/user-token.entity';
 import { UsersRepository } from './users.repository';
 import { JwtPayload } from './interfaces/jwt-payload.interface';
 import { getLang } from 'src/common/utils/lang.util';
-import { hashPassword } from 'src/common/utils/password.util';
 
 @Injectable()
 export class UsersService {
@@ -216,5 +216,30 @@ export class UsersService {
     const userToken = await this.tokensService.getLatestToken(updatedUser.id);
 
     return this.getUserData(updatedUser, userToken?.token || '');
+  }
+
+  async getProfile(
+    username: string,
+    i18n?: I18nContext,
+  ): Promise<ProfileResponseDto> {
+    const lang = getLang(this.configService, i18n);
+
+    const user = await this.usersRepository.findByUsername(username);
+    if (!user) {
+      throw new NotFoundException(
+        this.i18n.t('user.ERRORS.NOT_FOUND_USERNAME', {
+          lang,
+          args: { username },
+        }),
+      );
+    }
+
+    return plainToInstance(
+      ProfileResponseDto,
+      { profile: user },
+      {
+        excludeExtraneousValues: true,
+      },
+    );
   }
 }
