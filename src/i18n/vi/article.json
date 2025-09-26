@@ -1,0 +1,7 @@
+{
+  "errors": {
+    "ARTICLE_EXISTS": "Bài viết với slug này đã tồn tại!",
+    "NOT_FOUND": "Không tìm thấy bài viết!",
+    "NOT_ALLOWED": "Bạn không được phép cập nhật hoặc xóa bài viết này!"
+  }
+}

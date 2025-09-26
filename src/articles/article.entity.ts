@@ -8,6 +8,7 @@ import {
   OneToMany,
 } from 'typeorm';
 import { MinLength, MaxLength } from 'class-validator';
+import { Expose } from 'class-transformer';
 
 import { BaseEntity } from '../common/base.entity';
 import { Tag } from '../tags/tag.entity';
@@ -60,4 +61,16 @@ export class Article extends BaseEntity {
 
   @OneToMany(() => Comment, (comment) => comment.article)
   comments: Comment[];
+
+  // TODO: update later
+  @Expose()
+  get favorited(): boolean {
+    return false;
+  }
+
+  @Expose()
+  get favoritesCount(): number {
+    return 0;
+  }
+  // TODO
 }
