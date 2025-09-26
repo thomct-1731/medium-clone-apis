@@ -1,13 +1,13 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
   IsEmail,
-  IsString,
   IsOptional,
-  MinLength,
+  IsString,
   MaxLength,
+  MinLength,
 } from 'class-validator';
 
-import { USER_CONSTANTS } from '../user.contant';
+import { USER_CONSTANTS } from '../user.constant';
 
 export class UpdateUserDto {
   @ApiProperty({ example: 'abc@xyz.com' })

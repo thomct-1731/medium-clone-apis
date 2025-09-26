@@ -1,14 +1,14 @@
-import { Entity, Column, OneToMany, BeforeInsert } from 'typeorm';
-import { MinLength, MaxLength } from 'class-validator';
-import { Exclude, Expose } from 'class-transformer';
 import bcrypt from 'bcrypt';
+import { Exclude, Expose } from 'class-transformer';
+import { MaxLength, MinLength } from 'class-validator';
+import { BeforeInsert, Column, Entity, OneToMany } from 'typeorm';
 
-import { BaseEntity } from '../common/base.entity';
-import { UserToken } from '../user-tokens/user-token.entity';
 import { Article } from '../articles/article.entity';
 import { Comment } from '../comments/comment.entity';
-import { USER_CONSTANTS } from './user.contant';
+import { BaseEntity } from '../common/base.entity';
 import { hashPassword } from '../common/utils/password.util';
+import { UserToken } from '../user-tokens/user-token.entity';
+import { USER_CONSTANTS } from './user.constant';
 
 @Entity('users')
 export class User extends BaseEntity {
