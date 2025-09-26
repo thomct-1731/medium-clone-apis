@@ -30,7 +30,7 @@ export class ArticlesService {
     private readonly tagsService: TagsService,
   ) {}
 
-  private async validateUniqueArtile(
+  private async validateUniqueArticle(
     title: string,
     lang?: string,
   ): Promise<void> {
@@ -43,7 +43,7 @@ export class ArticlesService {
     }
   }
 
-  private async validateArtile(
+  private async validateArticle(
     slug: string,
     lang?: string,
     userId?: number,
@@ -70,7 +70,7 @@ export class ArticlesService {
   ): Promise<ArticleResponseDto> {
     return plainToInstance(
       ArticleResponseDto,
-      { article: await this.validateArtile(slug, lang) },
+      { article: await this.validateArticle(slug, lang) },
       {
         excludeExtraneousValues: true,
       },
@@ -84,7 +84,7 @@ export class ArticlesService {
   ): Promise<ArticleResponseDto> {
     const lang = getLang(this.configService, i18n);
 
-    await this.validateUniqueArtile(articleData.title, lang);
+    await this.validateUniqueArticle(articleData.title, lang);
 
     const tagList = articleData.tagList?.length
       ? await this.tagsService.createTags(articleData.tagList)
@@ -117,10 +117,10 @@ export class ArticlesService {
   ): Promise<ArticleResponseDto> {
     const lang = getLang(this.configService, i18n);
 
-    const article = await this.validateArtile(slug, lang, userId);
+    const article = await this.validateArticle(slug, lang, userId);
 
     if (articleData.title && articleData.title !== article.title) {
-      await this.validateUniqueArtile(articleData.title, lang);
+      await this.validateUniqueArticle(articleData.title, lang);
     }
 
     Object.assign(article, articleData);
@@ -138,7 +138,7 @@ export class ArticlesService {
   ): Promise<{ status: boolean }> {
     const lang = getLang(this.configService, i18n);
 
-    const article = await this.validateArtile(slug, lang, userId);
+    const article = await this.validateArticle(slug, lang, userId);
     await this.articlesRepository.deleteEntity(article.id);
 
     this.logger.log(`Article deleted with slug: ${article.slug}`);
