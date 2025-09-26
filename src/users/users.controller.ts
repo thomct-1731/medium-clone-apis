@@ -27,7 +27,7 @@ import {
   LoginRequest,
   UpdateUserRequest,
 } from './dto/user-request.dto';
-import { UserResponseDto, ProfileResponseDto } from './dto/user-reponse.dto';
+import { UserResponseDto, ProfileResponseDto } from './dto/user-response.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { CurrentUser } from 'src/common/decorators/current-user.decorator';
 
