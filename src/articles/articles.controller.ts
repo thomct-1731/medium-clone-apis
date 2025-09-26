@@ -111,4 +111,41 @@ export class ArticlesController {
   ) {
     return this.articlesService.deleteArticle(userId, slug, i18n);
   }
+
+  @Post(':slug/favorite')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Favorite Article' })
+  @ApiOkResponse({
+    description: 'Article favorited successfully',
+    type: ArticleResponseDto,
+  })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @ApiNotFoundResponse({ description: 'Article not found' })
+  @UseGuards(JwtAuthGuard)
+  favoriteArticle(
+    @CurrentUser() userId: number,
+    @Param('slug') slug: string,
+    @I18n() i18n: I18nContext,
+  ) {
+    return this.articlesService.favoriteArticle(userId, slug, i18n);
+  }
+
+  @Delete(':slug/favorite')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Unfavorite Article' })
+  @ApiOkResponse({
+    description: 'Article unfavorited successfully',
+    type: ArticleResponseDto,
+  })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @ApiNotFoundResponse({ description: 'Article not found' })
+  @ApiForbiddenResponse({ description: 'Forbidden' })
+  @UseGuards(JwtAuthGuard)
+  unfavoriteArticle(
+    @CurrentUser() userId: number,
+    @Param('slug') slug: string,
+    @I18n() i18n: I18nContext,
+  ) {
+    return this.articlesService.unfavoriteArticle(userId, slug, i18n);
+  }
 }
