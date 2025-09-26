@@ -13,4 +13,8 @@ export class ArticlesRepository extends BaseRepository<Article> {
   async findBySlug(slug: string): Promise<Article | null> {
     return this.findOne({ where: { slug }, relations: ['author', 'tagList'] });
   }
+
+  async findBySlugNotRelations(slug: string): Promise<Article | null> {
+    return this.findOne({ where: { slug } });
+  }
 }
