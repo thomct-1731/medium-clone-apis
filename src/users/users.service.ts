@@ -99,16 +99,6 @@ export class UsersService {
     return await this.tokensService.create(this.generateTokens(user));
   }
 
-  private async validateUser(userId: number, lang?: string): Promise<User> {
-    const user = await this.usersRepository.findById(userId);
-    if (!user) {
-      throw new NotFoundException(
-        this.i18n.t('user.ERRORS.NOT_FOUND', { lang }),
-      );
-    }
-    return user;
-  }
-
   private async validateEmail(email: string, lang?: string): Promise<void> {
     const existingUser = await this.usersRepository.findByEmail(email);
     if (existingUser) {
@@ -140,6 +130,16 @@ export class UsersService {
         image: user.image,
       },
     };
+  }
+
+  async validateUser(userId: number, lang?: string): Promise<User> {
+    const user = await this.usersRepository.findById(userId);
+    if (!user) {
+      throw new NotFoundException(
+        this.i18n.t('user.ERRORS.NOT_FOUND', { lang }),
+      );
+    }
+    return user;
   }
 
   async create(
