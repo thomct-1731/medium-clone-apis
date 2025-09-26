@@ -12,7 +12,10 @@ import { plainToInstance } from 'class-transformer';
 import { ArticlesRepository } from './articles.repository';
 import { TagsService } from '../tags/tags.service';
 import { CreateArticleDto } from './dto/create-article.dto';
-import { UpdateArticleDto } from './dto/update-article.dto';
+import {
+  UpdateArticleDto,
+  CustomUpdateArticleDto,
+} from './dto/update-article.dto';
 import { ArticleResponseDto } from './dto/article-response.dto';
 import { getLang } from 'src/common/utils/lang.util';
 import { flattenText } from 'src/common/utils/string.util';
@@ -30,11 +33,14 @@ export class ArticlesService {
     private readonly tagsService: TagsService,
   ) {}
 
-  private async validateUniqueArtile(
-    title: string,
+  private getSlug(title: string): string {
+    return flattenText(title, ARTICLE_CONSTANTS.SLUG.MAX_LENGTH);
+  }
+
+  private async validateUniqueArticle(
+    slug: string,
     lang?: string,
   ): Promise<void> {
-    const slug = flattenText(title, ARTICLE_CONSTANTS.SLUG.MAX_LENGTH);
     const existingArticle = await this.articlesRepository.findBySlug(slug);
     if (existingArticle) {
       throw new BadRequestException(
@@ -43,7 +49,7 @@ export class ArticlesService {
     }
   }
 
-  private async validateArtile(
+  private async validateArticle(
     slug: string,
     lang?: string,
     userId?: number,
@@ -70,7 +76,7 @@ export class ArticlesService {
   ): Promise<ArticleResponseDto> {
     return plainToInstance(
       ArticleResponseDto,
-      { article: await this.validateArtile(slug, lang) },
+      { article: await this.validateArticle(slug, lang) },
       {
         excludeExtraneousValues: true,
       },
@@ -84,7 +90,8 @@ export class ArticlesService {
   ): Promise<ArticleResponseDto> {
     const lang = getLang(this.configService, i18n);
 
-    await this.validateUniqueArtile(articleData.title, lang);
+    const slug = this.getSlug(articleData.title);
+    await this.validateUniqueArticle(slug, lang);
 
     const tagList = articleData.tagList?.length
       ? await this.tagsService.createTags(articleData.tagList)
@@ -92,6 +99,7 @@ export class ArticlesService {
 
     const article = await this.articlesRepository.createEntity({
       ...articleData,
+      slug,
       author: { id: userId },
       tagList,
     });
@@ -117,13 +125,20 @@ export class ArticlesService {
   ): Promise<ArticleResponseDto> {
     const lang = getLang(this.configService, i18n);
 
-    const article = await this.validateArtile(slug, lang, userId);
+    const article = await this.validateArticle(slug, lang, userId);
 
-    if (articleData.title && articleData.title !== article.title) {
-      await this.validateUniqueArtile(articleData.title, lang);
+    const updateData: CustomUpdateArticleDto = {
+      ...articleData,
+    };
+    if (articleData.title) {
+      const newSlug = this.getSlug(articleData.title);
+      if (newSlug !== article.slug) {
+        await this.validateUniqueArticle(newSlug, lang);
+        updateData.slug = newSlug;
+      }
     }
 
-    Object.assign(article, articleData);
+    Object.assign(article, updateData);
     const updatedArticle = await this.articlesRepository.save(article);
 
     this.logger.log(`Article updated with slug: ${updatedArticle.slug}`);
@@ -138,7 +153,7 @@ export class ArticlesService {
   ): Promise<{ status: boolean }> {
     const lang = getLang(this.configService, i18n);
 
-    const article = await this.validateArtile(slug, lang, userId);
+    const article = await this.validateArticle(slug, lang, userId);
     await this.articlesRepository.deleteEntity(article.id);
 
     this.logger.log(`Article deleted with slug: ${article.slug}`);

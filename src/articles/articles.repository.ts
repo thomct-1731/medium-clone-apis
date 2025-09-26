@@ -1,5 +1,6 @@
 import { DataSource } from 'typeorm';
 import { Injectable } from '@nestjs/common';
+import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
 
 import { BaseRepository } from '../common/base.repository';
 import { Article } from './article.entity';
