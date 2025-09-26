@@ -145,4 +145,15 @@ export class ArticlesService {
 
     return { status: true };
   }
+
+  async validateExistingArticle(slug: string, lang?: string): Promise<Article> {
+    const article = await this.articlesRepository.findBySlugNotRelations(slug);
+    if (!article) {
+      throw new NotFoundException(
+        this.i18n.t('article.errors.NOT_FOUND', { lang }),
+      );
+    }
+
+    return article;
+  }
 }

@@ -1,0 +1,6 @@
+{
+  "errors": {
+    "NOT_FOUND": "Comment not found!",
+    "NOT_ALLOWED": "You are not allowed to perform this action!"
+  }
+}
