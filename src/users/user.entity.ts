@@ -1,7 +1,7 @@
 import bcrypt from 'bcrypt';
 import { Exclude, Expose } from 'class-transformer';
 import { MaxLength, MinLength } from 'class-validator';
-import { BeforeInsert, Column, Entity, OneToMany } from 'typeorm';
+import { BeforeInsert, Column, Entity, OneToMany, ManyToMany } from 'typeorm';
 
 import { Article } from '../articles/article.entity';
 import { Comment } from '../comments/comment.entity';
@@ -39,6 +39,9 @@ export class User extends BaseEntity {
 
   @OneToMany(() => Comment, (comment) => comment.author)
   comments: Comment[];
+
+  @ManyToMany(() => Article, (article) => article.favoritedBy)
+  favorites: Article[];
 
   @BeforeInsert()
   async hashPassword() {

@@ -11,6 +11,8 @@ import { plainToInstance } from 'class-transformer';
 
 import { ArticlesRepository } from './articles.repository';
 import { TagsService } from '../tags/tags.service';
+import { UsersService } from '../users/users.service';
+import { FavoritesService } from 'src/favorites/favorites.service';
 import { CreateArticleDto } from './dto/create-article.dto';
 import {
   UpdateArticleDto,
@@ -31,6 +33,8 @@ export class ArticlesService {
     private readonly configService: ConfigService,
     private readonly i18n: I18nService,
     private readonly tagsService: TagsService,
+    private readonly usersService: UsersService,
+    private readonly favoritesService: FavoritesService,
   ) {}
 
   private getSlug(title: string): string {
@@ -159,5 +163,45 @@ export class ArticlesService {
     this.logger.log(`Article deleted with slug: ${article.slug}`);
 
     return { status: true };
+  }
+
+  async favoriteArticle(
+    userId: number,
+    slug: string,
+    i18n?: I18nContext,
+  ): Promise<ArticleResponseDto> {
+    const lang = getLang(this.configService, i18n);
+    await this.usersService.validateUser(userId, lang);
+
+    const article = await this.validateArticle(slug, lang);
+    if (await this.favoritesService.isArticleFavorited(userId, article.id)) {
+      return this.getSingleArticle(article.slug, lang);
+    }
+
+    await this.favoritesService.favoriteArticle(userId, article.id);
+
+    this.logger.log(`Article favorited with slug: ${article.slug}`);
+
+    return this.getSingleArticle(article.slug, lang);
+  }
+
+  async unfavoriteArticle(
+    userId: number,
+    slug: string,
+    i18n?: I18nContext,
+  ): Promise<ArticleResponseDto> {
+    const lang = getLang(this.configService, i18n);
+    await this.usersService.validateUser(userId, lang);
+
+    const article = await this.validateArticle(slug, lang);
+    if (!(await this.favoritesService.isArticleFavorited(userId, article.id))) {
+      return this.getSingleArticle(article.slug, lang);
+    }
+
+    await this.favoritesService.unfavoriteArticle(userId, article.id);
+
+    this.logger.log(`Article unfavorited with slug: ${article.slug}`);
+
+    return this.getSingleArticle(article.slug, lang);
   }
 }
