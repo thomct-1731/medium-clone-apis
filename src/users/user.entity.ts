@@ -56,12 +56,12 @@ export class User extends BaseEntity {
   }
 
   @Expose()
-  get following_count(): number {
+  get followingCount(): number {
     return 0;
   }
 
   @Expose()
-  get followers_count(): number {
+  get followersCount(): number {
     return 0;
   }
   // TODO

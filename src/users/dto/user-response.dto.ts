@@ -42,11 +42,11 @@ export class ProfileDataDto {
 
   @ApiProperty()
   @Expose()
-  following_count: number;
+  followingCount: number;
 
   @ApiProperty()
   @Expose()
-  followers_count: number;
+  followersCount: number;
 }
 
 export class ProfileResponseDto {
