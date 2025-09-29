@@ -3,5 +3,6 @@
     "ARTICLE_EXISTS": "Article with this slug already exists!",
     "NOT_FOUND": "Article not found!",
     "NOT_ALLOWED": "You are not allowed to update or delete this article!"
-  }
+  },
+  "DELETE_SUCCESS": "Article deleted successfully!"
 }

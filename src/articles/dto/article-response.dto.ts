@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Type, Expose, Transform } from 'class-transformer';
 
-import { ProfileDataDto } from 'src/users/dto/user-reponse.dto';
+import { ProfileDataDto } from 'src/users/dto/user-response.dto';
 import { Tag } from 'src/tags/tag.entity';
 
 export class ArticleDataDto {

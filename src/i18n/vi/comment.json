@@ -1,6 +1,7 @@
 {
   "errors": {
     "NOT_FOUND": "Không tìm thấy bình luận!",
-    "NOT_ALLOWED": "Bạn không được phép thực hiện hành động này!"
+    "NOT_ALLOWED": "Bạn không được phép thực hiện hành động này!",
+    "CREATE_FAILED": "Tạo bình luận thất bại!"
   }
 }

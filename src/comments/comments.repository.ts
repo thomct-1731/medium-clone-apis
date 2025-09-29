@@ -12,7 +12,7 @@ export class CommentsRepository extends BaseRepository<Comment> {
 
   async createEntityWithRelations(
     data: DeepPartial<Comment>,
-  ): Promise<Comment> {
+  ): Promise<Comment | null> {
     const newEntity = this.create(data);
     const savedEntity = await this.save(newEntity);
 

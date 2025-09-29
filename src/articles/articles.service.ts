@@ -12,7 +12,10 @@ import { plainToInstance } from 'class-transformer';
 import { ArticlesRepository } from './articles.repository';
 import { TagsService } from '../tags/tags.service';
 import { CreateArticleDto } from './dto/create-article.dto';
-import { UpdateArticleDto } from './dto/update-article.dto';
+import {
+  UpdateArticleDto,
+  CustomUpdateArticleDto,
+} from './dto/update-article.dto';
 import { ArticleResponseDto } from './dto/article-response.dto';
 import { getLang } from 'src/common/utils/lang.util';
 import { flattenText } from 'src/common/utils/string.util';
@@ -30,11 +33,14 @@ export class ArticlesService {
     private readonly tagsService: TagsService,
   ) {}
 
+  private getSlug(title: string): string {
+    return flattenText(title, ARTICLE_CONSTANTS.SLUG.MAX_LENGTH);
+  }
+
   private async validateUniqueArticle(
-    title: string,
+    slug: string,
     lang?: string,
   ): Promise<void> {
-    const slug = flattenText(title, ARTICLE_CONSTANTS.SLUG.MAX_LENGTH);
     const existingArticle = await this.articlesRepository.findBySlug(slug);
     if (existingArticle) {
       throw new BadRequestException(
@@ -82,31 +88,49 @@ export class ArticlesService {
     articleData: CreateArticleDto,
     i18n?: I18nContext,
   ): Promise<ArticleResponseDto> {
-    const lang = getLang(this.configService, i18n);
+    try {
+      const lang = getLang(this.configService, i18n);
 
-    await this.validateUniqueArticle(articleData.title, lang);
+      const slug = this.getSlug(articleData.title);
+      await this.validateUniqueArticle(slug, lang);
 
-    const tagList = articleData.tagList?.length
-      ? await this.tagsService.createTags(articleData.tagList)
-      : [];
+      const tagList = articleData.tagList?.length
+        ? await this.tagsService.createTags(articleData.tagList)
+        : [];
 
-    const article = await this.articlesRepository.createEntity({
-      ...articleData,
-      author: { id: userId },
-      tagList,
-    });
+      const article = await this.articlesRepository.createEntity({
+        ...articleData,
+        slug,
+        author: { id: userId },
+        tagList,
+      });
 
-    this.logger.log(`Article created with slug: ${article.slug}`);
+      this.logger.log(`Article created with slug: ${article.slug}`);
 
-    return this.getSingleArticle(article.slug, lang);
+      return this.getSingleArticle(article.slug, lang);
+    } catch (error: unknown) {
+      this.logger.error(
+        'Error creating article',
+        error instanceof Error ? error.stack : 'Unknown error',
+      );
+      throw error;
+    }
   }
 
   async getArticleBySlug(
     slug: string,
     i18n?: I18nContext,
   ): Promise<ArticleResponseDto> {
-    const lang = getLang(this.configService, i18n);
-    return this.getSingleArticle(slug, lang);
+    try {
+      const lang = getLang(this.configService, i18n);
+      return this.getSingleArticle(slug, lang);
+    } catch (error: unknown) {
+      this.logger.error(
+        'Error fetching article',
+        error instanceof Error ? error.stack : 'Unknown error',
+      );
+      throw error;
+    }
   }
 
   async updateArticle(
@@ -115,35 +139,61 @@ export class ArticlesService {
     articleData: UpdateArticleDto,
     i18n?: I18nContext,
   ): Promise<ArticleResponseDto> {
-    const lang = getLang(this.configService, i18n);
+    try {
+      const lang = getLang(this.configService, i18n);
 
-    const article = await this.validateArticle(slug, lang, userId);
+      const article = await this.validateArticle(slug, lang, userId);
 
-    if (articleData.title && articleData.title !== article.title) {
-      await this.validateUniqueArticle(articleData.title, lang);
+      const updateData: CustomUpdateArticleDto = {
+        ...articleData,
+      };
+      if (articleData.title) {
+        const newSlug = this.getSlug(articleData.title);
+        if (newSlug !== article.slug) {
+          await this.validateUniqueArticle(newSlug, lang);
+          updateData.slug = newSlug;
+        }
+      }
+
+      Object.assign(article, updateData);
+      const updatedArticle = await this.articlesRepository.save(article);
+
+      this.logger.log(`Article updated with slug: ${updatedArticle.slug}`);
+
+      return this.getSingleArticle(updatedArticle.slug, lang);
+    } catch (error: unknown) {
+      this.logger.error(
+        'Error updating article',
+        error instanceof Error ? error.stack : 'Unknown error',
+      );
+      throw error;
     }
-
-    Object.assign(article, articleData);
-    const updatedArticle = await this.articlesRepository.save(article);
-
-    this.logger.log(`Article updated with slug: ${updatedArticle.slug}`);
-
-    return this.getSingleArticle(updatedArticle.slug, lang);
   }
 
   async deleteArticle(
     userId: number,
     slug: string,
     i18n?: I18nContext,
-  ): Promise<{ status: boolean }> {
-    const lang = getLang(this.configService, i18n);
+  ): Promise<{ status: boolean; message: string }> {
+    try {
+      const lang = getLang(this.configService, i18n);
 
-    const article = await this.validateArticle(slug, lang, userId);
-    await this.articlesRepository.deleteEntity(article.id);
+      const article = await this.validateArticle(slug, lang, userId);
+      await this.articlesRepository.deleteEntity(article.id);
 
-    this.logger.log(`Article deleted with slug: ${article.slug}`);
+      this.logger.log(`Article deleted with slug: ${article.slug}`);
 
-    return { status: true };
+      return {
+        status: true,
+        message: this.i18n.t('article.DELETE_SUCCESS', { lang }),
+      };
+    } catch (error: unknown) {
+      this.logger.error(
+        'Error deleting article',
+        error instanceof Error ? error.stack : 'Unknown error',
+      );
+      throw error;
+    }
   }
 
   async validateExistingArticle(slug: string, lang?: string): Promise<Article> {

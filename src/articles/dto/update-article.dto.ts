@@ -23,3 +23,10 @@ export class UpdateArticleDto {
   @IsString()
   body?: string;
 }
+
+export class CustomUpdateArticleDto extends UpdateArticleDto {
+  @ApiProperty()
+  @IsOptional()
+  @IsString()
+  slug?: string;
+}

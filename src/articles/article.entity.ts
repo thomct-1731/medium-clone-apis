@@ -65,14 +65,6 @@ export class Article extends BaseEntity {
   @OneToMany(() => Comment, (comment) => comment.article)
   comments: Comment[];
 
-  @BeforeInsert()
-  @BeforeUpdate()
-  generateSlug() {
-    if (this.title) {
-      this.slug = flattenText(this.title, ARTICLE_CONSTANTS.SLUG.MAX_LENGTH);
-    }
-  }
-
   // TODO: update later
   @Expose()
   get favorited(): boolean {

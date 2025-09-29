@@ -1,15 +1,15 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
-  IsNotEmpty,
-  ValidateNested,
   IsEmail,
+  IsNotEmpty,
   MinLength,
+  ValidateNested,
 } from 'class-validator';
 
+import { USER_CONSTANTS } from '../user.constant';
 import { CreateUserDto } from './create-user.dto';
 import { UpdateUserDto } from './update-user.dto';
-import { USER_CONSTANTS } from '../user.contant';
 
 export class RegisterRequest {
   @ApiProperty({ type: CreateUserDto })

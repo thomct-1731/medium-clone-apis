@@ -1,5 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, MinLength, MaxLength, IsString } from 'class-validator';
+import {
+  IsNotEmpty,
+  MinLength,
+  MaxLength,
+  IsString,
+  IsOptional,
+} from 'class-validator';
 
 import { ARTICLE_CONSTANTS } from '../article.constant';
 
@@ -24,6 +30,7 @@ export class CreateArticleDto {
   body: string;
 
   @ApiProperty({ required: false })
+  @IsOptional()
   @IsString({ each: true })
   tagList?: string[];
 }

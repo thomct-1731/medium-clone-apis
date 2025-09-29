@@ -14,7 +14,7 @@ import { UserTokensService } from '../user-tokens/user-tokens.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { LoginUserDto } from './dto/user-request.dto';
-import { UserResponseDto, ProfileResponseDto } from './dto/user-reponse.dto';
+import { UserResponseDto, ProfileResponseDto } from './dto/user-response.dto';
 import { User } from './user.entity';
 import { UserToken } from '../user-tokens/user-token.entity';
 import { UsersRepository } from './users.repository';

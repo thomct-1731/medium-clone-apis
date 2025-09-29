@@ -69,6 +69,12 @@ export class CommentsService {
       article: { id: article.id },
     });
 
+    if (!comment) {
+      throw new NotFoundException(
+        this.i18n.t('comment.errors.CREATE_FAILED', { lang }),
+      );
+    }
+
     this.logger.log(`Comment created with id: ${comment.id}`);
 
     return plainToInstance(
