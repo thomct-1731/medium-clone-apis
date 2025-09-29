@@ -1,0 +1,8 @@
+{
+  "errors": {
+    "NOT_FOUND": "Comment not found!",
+    "NOT_ALLOWED": "You are not allowed to perform this action!",
+    "CREATE_FAILED": "Failed to create comment!"
+  },
+  "DELETED_SUCCESS": "Comment deleted successfully!"
+}
