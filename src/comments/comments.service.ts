@@ -56,53 +56,69 @@ export class CommentsService {
     createCommentDto: CreateCommentDto,
     i18n?: I18nContext,
   ): Promise<CommentResponseDto> {
-    const lang = getLang(this.configService, i18n);
+    try {
+      const lang = getLang(this.configService, i18n);
 
-    const article = await this.articlesService.validateExistingArticle(
-      slug,
-      lang,
-    );
-
-    const comment = await this.commentsRepository.createEntityWithRelations({
-      ...createCommentDto,
-      author: { id: userId },
-      article: { id: article.id },
-    });
-
-    if (!comment) {
-      throw new NotFoundException(
-        this.i18n.t('comment.errors.CREATE_FAILED', { lang }),
+      const article = await this.articlesService.validateExistingArticle(
+        slug,
+        lang,
       );
+
+      const comment = await this.commentsRepository.createEntityWithRelations({
+        ...createCommentDto,
+        author: { id: userId },
+        article: { id: article.id },
+      });
+
+      if (!comment) {
+        throw new NotFoundException(
+          this.i18n.t('comment.errors.CREATE_FAILED', { lang }),
+        );
+      }
+
+      this.logger.log(`Comment created with id: ${comment.id}`);
+
+      return plainToInstance(
+        CommentResponseDto,
+        { comment: comment },
+        { excludeExtraneousValues: true },
+      );
+    } catch (error) {
+      this.logger.error(
+        `Failed to create comment for article: ${slug}. Error: ${error}`,
+      );
+      throw error;
     }
-
-    this.logger.log(`Comment created with id: ${comment.id}`);
-
-    return plainToInstance(
-      CommentResponseDto,
-      { comment: comment },
-      { excludeExtraneousValues: true },
-    );
   }
 
   async getAllByArticle(
     slug: string,
     i18n?: I18nContext,
   ): Promise<CommentsListResponseDto> {
-    const lang = getLang(this.configService, i18n);
+    try {
+      const lang = getLang(this.configService, i18n);
 
-    const article = await this.articlesService.validateExistingArticle(
-      slug,
-      lang,
-    );
-    this.logger.log(`Comments retrieved for article: ${article.slug}`);
+      const article = await this.articlesService.validateExistingArticle(
+        slug,
+        lang,
+      );
+      this.logger.log(`Comments retrieved for article: ${article.slug}`);
 
-    const comments = await this.commentsRepository.findByArticleId(article.id);
+      const comments = await this.commentsRepository.findByArticleId(
+        article.id,
+      );
 
-    return plainToInstance(
-      CommentsListResponseDto,
-      { comments: comments },
-      { excludeExtraneousValues: true },
-    );
+      return plainToInstance(
+        CommentsListResponseDto,
+        { comments: comments },
+        { excludeExtraneousValues: true },
+      );
+    } catch (error) {
+      this.logger.error(
+        `Failed to get comments for article: ${slug}. Error: ${error}`,
+      );
+      throw error;
+    }
   }
 
   async deleteComment(
@@ -110,15 +126,25 @@ export class CommentsService {
     slug: string,
     id: number,
     i18n?: I18nContext,
-  ): Promise<{ status: boolean }> {
-    const lang = getLang(this.configService, i18n);
+  ): Promise<{ status: boolean; message: string }> {
+    try {
+      const lang = getLang(this.configService, i18n);
 
-    await this.articlesService.validateExistingArticle(slug, lang);
-    await this.validateComment(id, userId, lang);
-    await this.commentsRepository.deleteEntity(id);
+      await this.articlesService.validateExistingArticle(slug, lang);
+      await this.validateComment(id, userId, lang);
+      await this.commentsRepository.deleteEntity(id);
 
-    this.logger.log(`Comment deleted with id: ${id} for article: ${slug}`);
+      this.logger.log(`Comment deleted with id: ${id} for article: ${slug}`);
 
-    return { status: true };
+      return {
+        status: true,
+        message: this.i18n.t('comment.DELETED_SUCCESS', { lang }),
+      };
+    } catch (error) {
+      this.logger.error(
+        `Failed to delete comment with id: ${id} for article: ${slug}. Error: ${error}`,
+      );
+      throw error;
+    }
   }
 }

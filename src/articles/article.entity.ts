@@ -6,8 +6,6 @@ import {
   ManyToOne,
   JoinColumn,
   OneToMany,
-  BeforeInsert,
-  BeforeUpdate,
 } from 'typeorm';
 import { MinLength, MaxLength } from 'class-validator';
 import { Expose } from 'class-transformer';
@@ -18,7 +16,6 @@ import { User } from '../users/user.entity';
 import { Comment } from '../comments/comment.entity';
 import { ARTICLE_CONSTANTS } from './article.constant';
 import { ArticleStatus } from './article.enum';
-import { flattenText } from '../common/utils/string.util';
 
 @Entity('articles')
 export class Article extends BaseEntity {
