@@ -1,6 +1,5 @@
 import { DataSource } from 'typeorm';
 import { Injectable } from '@nestjs/common';
-import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
 
 import { BaseRepository } from '../common/base.repository';
 import { Article } from './article.entity';
@@ -12,6 +11,13 @@ export class ArticlesRepository extends BaseRepository<Article> {
   }
 
   async findBySlug(slug: string): Promise<Article | null> {
-    return this.findOne({ where: { slug }, relations: ['author', 'tagList'] });
+    return this.findOne({
+      where: { slug },
+      relations: ['author', 'tagList', 'favoritedBy'],
+      select: {
+        tagList: { name: true },
+        favoritedBy: { id: true },
+      },
+    });
   }
 }

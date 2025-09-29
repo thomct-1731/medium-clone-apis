@@ -62,15 +62,21 @@ export class Article extends BaseEntity {
   @OneToMany(() => Comment, (comment) => comment.article)
   comments: Comment[];
 
-  // TODO: update later
+  @ManyToMany(() => User, (user) => user.favorites, { cascade: true })
+  @JoinTable({
+    name: 'favorites',
+    joinColumn: { name: 'article_id', referencedColumnName: 'id' },
+    inverseJoinColumn: { name: 'user_id', referencedColumnName: 'id' },
+  })
+  favoritedBy: User[];
+
   @Expose()
   get favorited(): boolean {
-    return false;
+    return this.favoritedBy?.length > 0 || false;
   }
 
   @Expose()
   get favoritesCount(): number {
-    return 0;
+    return this.favoritedBy?.length ?? 0;
   }
-  // TODO
 }
