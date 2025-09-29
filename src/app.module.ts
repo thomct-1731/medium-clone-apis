@@ -5,6 +5,7 @@ import { DatabaseModule } from './database/database.module';
 import { CustomI18nModule } from './i18n/i18n.module';
 import { UsersModule } from './users/users.module';
 import { UserTokensModule } from './user-tokens/user-tokens.module';
+import { TagsModule } from './tags/tags.module';
 import databaseConfig from './config/database.config';
 
 @Module({
@@ -17,6 +18,7 @@ import databaseConfig from './config/database.config';
     CustomI18nModule,
     UsersModule,
     UserTokensModule,
+    TagsModule,
   ],
   controllers: [],
   providers: [],
